@@ -2,11 +2,21 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <!-- Wichtig für mobile Skalierung -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- Erzwingt die korrekte Skalierung auf Mobilgeräten und sperrt das Zoomen -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    
+    <!-- iOS / Safari App-Modus Aktivierung -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Hau den Maulwurf">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/235/235252.png">
+
+    <!-- Android / Chrome App-Modus Aktivierung über Inline-Manifest -->
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Hau%20den%20Maulwurf%22,%22short_name%22:%22Maulwurf%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%232f6b1b%22,%22theme_color%22:%22%232f6b1b%22,%22orientation%22:%22portrait%22,%22icons%22:[{%22src%22:%22https://cdn-icons-png.flaticon.com/512/235/235252.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]} animate">
+
     <title>Hau den Maulwurf! 🐹🔨</title>
     <style>
-        /* --- DESIGN & STYLING --- */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: radial-gradient(circle, #7bc85e 0%, #2f6b1b 100%);
@@ -17,16 +27,19 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            /* Füllt den Bildschirm im App-Modus perfekt aus */
+            height: 100vh;
             color: white;
             overflow: hidden;
             user-select: none;
-            -webkit-user-select: none; /* Für iOS Safari */
-            touch-action: manipulation; /* Verhindert Double-Tap-to-Zoom Verzögerung auf Handys */
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            box-sizing: border-box;
         }
 
         h1 {
             text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
-            margin: 5px 0;
+            margin: 5px 0 10px 0;
             font-size: 1.8rem;
             text-align: center;
         }
@@ -37,17 +50,16 @@
             padding: 8px 20px;
             border-radius: 50px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             font-weight: bold;
             display: flex;
             gap: 10px;
         }
 
-        /* --- RESPONSIVE SPIELFELD --- */
         .game-container {
-            width: 90vw; /* Nutzt 90% der Bildschirmbreite auf Handys */
-            max-width: 450px; /* Wird auf Desktop-Bildschirmen nicht zu riesig */
-            aspect-ratio: 1 / 1; /* Garantiert, dass das Spielfeld immer quadratisch bleibt */
+            width: 90vw;
+            max-width: 400px;
+            aspect-ratio: 1 / 1;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(3, 1fr);
@@ -59,7 +71,6 @@
             box-sizing: border-box;
         }
 
-        /* Ein Erdhügel */
         .hole {
             background: #5c3a21;
             border-radius: 50% 50% 20% 20%;
@@ -69,7 +80,6 @@
             box-shadow: inset 0 6px 6px rgba(0,0,0,0.6);
         }
 
-        /* Der Maulwurf */
         .mole {
             width: 80%;
             height: 80%;
@@ -78,12 +88,11 @@
             position: absolute;
             bottom: -100%;
             left: 10%;
-            transition: bottom 0.1s ease-out; /* Noch etwas knackiger für Touch-Reaktionen */
+            transition: bottom 0.1s ease-out;
             cursor: pointer;
             box-shadow: inset -3px -3px 6px rgba(0,0,0,0.4);
         }
 
-        /* Augen und Nase des Maulwurfs */
         .mole::before {
             content: '';
             position: absolute;
@@ -93,7 +102,7 @@
             border-radius: 50%;
             top: 25%;
             left: 25%;
-            box-shadow: 20px 0 0 black; /* Passt sich mobiler Größe an */
+            box-shadow: 20px 0 0 black;
         }
 
         .mole::after {
@@ -111,9 +120,8 @@
             bottom: 5px;
         }
 
-        /* Start-Button */
         .start-btn {
-            margin-top: 15px;
+            margin-top: 20px;
             padding: 12px 40px;
             font-size: 1.1rem;
             font-weight: bold;
@@ -124,21 +132,20 @@
             cursor: pointer;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             transition: transform 0.1s, background 0.2s;
-            -webkit-tap-highlight-color: transparent; /* Verhindert unschönen blauen Kasten beim Tippen auf iOS */
+            -webkit-tap-highlight-color: transparent;
         }
 
         .start-btn:active {
             transform: scale(0.95);
         }
 
-        /* Media Query für noch kleinere Smartphones */
-        @media (max-width: 360px) {
-            h1 {
-                font-size: 1.5rem;
-            }
-            .score-board {
-                font-size: 0.9rem;
-            }
+        /* Versteckt den Vollbild-Trigger-Button, wenn wir uns bereits im App-Modus befinden */
+        .fullscreen-prompt {
+            position: fixed;
+            bottom: 10px;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            text-align: center;
         }
     </style>
 </head>
@@ -163,14 +170,16 @@
         <div class="hole"><div class="mole"></div></div>
     </div>
 
-    <button class="start-btn" onclick="startGame()">Spiel starten!</button>
+    <button class="start-btn" id="start-btn" onclick="startGame()">Spiel starten!</button>
+    
+    <div class="fullscreen-prompt" id="fs-prompt">Für echtes Vollbild zum Homescreen hinzufügen!</div>
 
-    <!-- --- LOGIK (JAVASCRIPT) --- -->
     <script>
         const holes = document.querySelectorAll('.hole');
         const moles = document.querySelectorAll('.mole');
         const scoreBoard = document.querySelector('#score');
         const timeLeftBoard = document.querySelector('#time-left');
+        const startBtn = document.querySelector('#start-btn');
         
         let lastHole;
         let timeUp = false;
@@ -178,6 +187,20 @@
         let timeLeft = 30;
         let countdownTimer;
         let moleTimer;
+
+        // Versuche beim Starten des Spiels zusätzlich den nativen Browser-Vollbildmodus zu triggern
+        function requestFullscreen() {
+            const docElm = document.documentElement;
+            if (docElm.requestFullscreen) {
+                docElm.requestFullscreen();
+            } else if (docElm.mozRequestFullScreen) { /* Firefox */
+                docElm.mozRequestFullScreen();
+            } else if (docElm.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+                docElm.webkitRequestFullscreen();
+            } else if (docElm.msRequestFullscreen) { /* IE/Edge */
+                docElm.msRequestFullscreen();
+            }
+        }
 
         function randomTime(min, max) {
             return Math.round(Math.random() * (max - min) + min);
@@ -194,7 +217,7 @@
         }
 
         function peep() {
-            const time = 600; // randomTime(200, 600); 
+            const time = randomTime(500, 1000); 
             const hole = randomHole(holes);
             const mole = hole.querySelector('.mole');
             
@@ -207,6 +230,9 @@
         }
 
         function startGame() {
+            // Versuche direkt in den Fullscreen zu schalten
+            requestFullscreen();
+            
             resetGame();
             timeUp = false;
             peep();
@@ -234,21 +260,24 @@
         }
 
         function bonk(e) {
-            if(!e.isTrusted) return; // Schutz gegen Bots/Autoclicker
+            if(!e.isTrusted) return; 
             score++;
             this.classList.remove('up');
             scoreBoard.textContent = score;
         }
 
-        // Event-Listener reagieren mobil verzögerungsfrei
         moles.forEach(mole => {
             mole.addEventListener('click', bonk);
-            // Zusätzlicher Touchstart-Listener für extrem schnelles Ansprechverhalten auf Touchscreens
             mole.addEventListener('touchstart', function(e) {
-                e.preventDefault(); // Verhindert die nachfolgende Klick-Simulation und Zoom-Trigger
+                e.preventDefault(); 
                 bonk.call(this, e);
             }, { passive: false });
         });
+
+        // Blendet den Infotext aus, wenn das Spiel bereits "standalone" läuft
+        if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+            document.getElementById('fs-prompt').style.display = 'none';
+        }
     </script>
 </body>
 </html>
