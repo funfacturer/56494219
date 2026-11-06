@@ -2,15 +2,17 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    <!-- viewport-fit=cover nutzt das gesamte Display inklusive Notch, Dynamic Island & Home-Bar -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
     
     <!-- Browser-Theme-Farbe (Statusleiste Android) -->
     <meta name="theme-color" content="#2f6b1b">
 
-    <!-- iOS / Safari App-Modus & Icon-Konfiguration -->
+    <!-- iOS / Safari App-Modus & Statusleisten-Verschmelzung -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Hau den Maulwurf">
+    <!-- black-translucent macht die Statusleiste transparent, sodass die Hintergrundfarbe dahintergleitet -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Maulwurf">
     
     <!-- Das App-Icon für den Homescreen -->
     <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/mole.png">
@@ -20,29 +22,47 @@
 
     <title>Hau den Maulwurf! 🐹🔨</title>
     <style>
+        :root {
+            --app-height: 100vh;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        html {
+            background-color: #2f6b1b;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #2f6b1b;
             background: radial-gradient(circle, #7bc85e 0%, #2f6b1b 100%);
-            margin: 0;
-            padding: 10px;
+            /* Nutzt die exakt via JS berechnete Höhe für iPhones */
+            height: var(--app-height);
+            width: 100vw;
+            overflow: hidden;
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            height: 100vh;
             color: white;
-            overflow: hidden;
-            user-select: none;
-            -webkit-user-select: none;
             touch-action: manipulation;
-            box-sizing: border-box;
+            /* Ausgleich für iOS safe areas (Notch & Home Bar) */
+            padding: env(safe-area-inset-top, 20px) 15px env(safe-area-inset-bottom, 20px) 15px;
         }
 
         h1 {
             text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
-            margin: 5px 0 10px 0;
+            margin: 10px 0;
             font-size: 1.8rem;
             text-align: center;
         }
@@ -144,7 +164,7 @@
 
         .fullscreen-prompt {
             position: fixed;
-            bottom: 10px;
+            bottom: env(safe-area-inset-bottom, 10px);
             font-size: 0.8rem;
             opacity: 0.7;
             text-align: center;
@@ -193,7 +213,7 @@
         let spawnTimings = []; 
         let activeTimeouts = [];
 
-        // Fixe Spawn-Dauer in Millisekunden (exakt 600 ms)
+        // Feste Verweildauer der Maulwürfe (genau 600 ms)
         const SPAWN_DURATION = 600; 
 
         function requestFullscreen() {
@@ -209,7 +229,7 @@
             }
         }
 
-        // Berechnet eine Spielrunde im Voraus (mit der fixen 600-ms-Spawnzeit)
+        // Berechnet die komplette Runde im Voraus auf Basis des 600-ms-Intervalls
         function generatePrecalculatedSession() {
             spawnTimings = [];
             let simulatedTime = 0;
@@ -218,12 +238,11 @@
             while (simulatedTime < gameDurationLimit) {
                 spawnTimings.push({
                     startTime: simulatedTime,
-                    duration: SPAWN_DURATION // Immer exakt 600 ms
+                    duration: SPAWN_DURATION
                 });
-
                 simulatedTime += SPAWN_DURATION;
             }
-            
+            // Zeigt direkt die exakte Gesamtzahl an (immer genau 50 bei 30s)
             totalSpawnsBoard.textContent = spawnTimings.length;
         }
 
@@ -322,7 +341,7 @@
             document.getElementById('fs-prompt').style.display = 'none';
         }
 
-        generatePrecalculatedSession();
-    </script>
-</body>
-</html>
+        // iPhone Höhenberechnung
+        function adjustAppHeight() {
+            const doc = document.documentElement;
+            doc.style.setProperty('--app-height', `$
