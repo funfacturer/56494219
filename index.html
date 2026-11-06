@@ -13,8 +13,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Maulwurf">
     
-    <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/mole.png">
-
+    <link rel="apple-touch-icon" href="icon.png">
+    
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -23,7 +23,7 @@
 </head>
 <body>
 
-    <!-- 🔑 AUTHENTICATION BOX (Zwei-Button Tab-Design) -->
+    <!-- 🔑 AUTHENTICATION BOX -->
     <div class="auth-container" id="auth-box">
         <h2>🐹 Maulwurf Login</h2>
         <div class="auth-tabs">
@@ -37,12 +37,7 @@
 
     <!-- 🎮 MAIN GAME AREA -->
     <div class="hidden" id="game-area" style="display: flex; flex-direction: column; align-items: center;">
-        <div class="user-status">
-            <span>Eingeloggt als: <strong id="logged-user-email">...</strong></span>
-            <span>|</span>
-            <span class="logout-link" id="logout-btn">Abmelden</span>
-        </div>
-
+        
         <h1>Hau den Maulwurf! 🐹</h1>
 
         <!-- Realtime Supabase Leaderboard -->
@@ -59,7 +54,11 @@
             <span>Zeit: <span id="time-left">30</span>s</span>
         </div>
 
+        <!-- Das erweiterte 3x3 Spielfeld mit 9 Erdlöchern -->
         <div class="game-container">
+            <div class="hole"><div class="mole"></div></div>
+            <div class="hole"><div class="mole"></div></div>
+            <div class="hole"><div class="mole"></div></div>
             <div class="hole"><div class="mole"></div></div>
             <div class="hole"><div class="mole"></div></div>
             <div class="hole"><div class="mole"></div></div>
@@ -68,10 +67,9 @@
             <div class="hole"><div class="mole"></div></div>
         </div>
 
+
         <button class="start-btn" id="start-btn">Spiel starten!</button>
     </div>
-    
-    <div class="fullscreen-prompt" id="fs-prompt">Für echtes Vollbild zum Homescreen hinzufügen!</div>
 
     <script src="script.js"></script>
 </body>

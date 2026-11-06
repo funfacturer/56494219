@@ -1,4 +1,12 @@
-// --- 🔑 SUPABASE SETTINGS ---
+// ==========================================
+// ⚙️ SCHNELLE SPIEL-EINSTELLUNGEN
+// ==========================================
+const GAME_TOTAL_TIME_SECONDS = 20; // Gesamtspielzeit in Sekunden (z. B. 30, 60, 90)
+const SPAWN_DURATION_MS = 600;       // Auftauchzeit der Maulwürfe in Millisekunden (z. B. 600, 400 für schwer, 1000 für leicht)
+
+// ==========================================
+// 🔑 SUPABASE SETTINGS (Deine API-Schlüssel)
+// ==========================================
 const SUPABASE_URL = "https://ntoibzgbrxcyftokdknw.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_NED7gCPsrovyU-kMa1FzcQ_y1_68Q53";
 
@@ -17,7 +25,6 @@ if (SUPABASE_URL && SUPABASE_URL !== "DEINE_SUPABASE_PROJEKT_URL") {
 // DOM-Elemente
 const authBox = document.getElementById('auth-box');
 const gameArea = document.getElementById('game-area');
-const loggedUserEmail = document.getElementById('logged-user-email');
 const holes = document.querySelectorAll('.hole');
 const moles = document.querySelectorAll('.mole');
 const scoreBoard = document.querySelector('#score');
@@ -25,18 +32,16 @@ const totalSpawnsBoard = document.querySelector('#total-spawns');
 const timeLeftBoard = document.querySelector('#time-left');
 const leaderboardList = document.getElementById('leaderboard-list');
 const startBtn = document.getElementById('start-btn');
-const logoutBtn = document.getElementById('logout-btn');
 const authSubmitBtn = document.getElementById('auth-submit-btn');
 
 let lastHole;
 let score = 0;
-let timeLeft = 30;
+let timeLeft = GAME_TOTAL_TIME_SECONDS; // Dynamisch aus der Einstellung oben geladen
 let countdownTimer;
 let isPlaying = false; 
 
 let spawnTimings = []; 
 let activeTimeouts = [];
-const SPAWN_DURATION = 600; 
 
 // --- TAB WECHSEL LOGIK ---
 function switchTab(mode) {
@@ -63,8 +68,6 @@ authSubmitBtn.addEventListener('touchstart', (e) => {
     e.preventDefault();
     handleAuth();
 }, { passive: false });
-
-logoutBtn.addEventListener('click', logout);
 
 async function handleAuth() {
     const email = document.getElementById('auth-email').value.trim();
@@ -96,24 +99,11 @@ async function handleAuth() {
     }
 }
 
-async function logout() {
-    if (supabaseClient) {
-        // Bei Logout löschen wir auch den lokalen Spielernamen für maximale Privatsphäre
-        localStorage.removeItem('mole_player_name');
-        await supabaseClient.auth.signOut();
-    }
-}
-
 // Beobachtung des Auth-Status
 if (supabaseClient) {
     supabaseClient.auth.onAuthStateChange((event, session) => {
         if (session) {
             currentUser = session.user;
-            
-            // Wenn bereits ein Spielername gespeichert ist, zeigen wir diesen an, sonst die E-Mail
-            const savedName = localStorage.getItem('mole_player_name');
-            loggedUserEmail.textContent = savedName ? savedName : currentUser.email;
-            
             authBox.classList.add('hidden');
             gameArea.classList.remove('hidden');
             fetchLeaderboard();
@@ -177,17 +167,18 @@ async function submitScore(name, finalScore, finalAccuracy) {
     }
 }
 
+// Berechnet die Spielzeit vollautomatisch auf Basis der Einstellungen oben
 function generatePrecalculatedSession() {
     spawnTimings = [];
     let simulatedTime = 0;
-    const gameDurationLimit = 30000;
+    const gameDurationLimit = GAME_TOTAL_TIME_SECONDS * 1000; // Rechnet Sekunden in Millisekunden um
 
     while (simulatedTime < gameDurationLimit) {
         spawnTimings.push({
             startTime: simulatedTime,
-            duration: SPAWN_DURATION
+            duration: SPAWN_DURATION_MS // Verwendet die Einstellung oben
         });
-        simulatedTime += SPAWN_DURATION;
+        simulatedTime += SPAWN_DURATION_MS;
     }
     totalSpawnsBoard.textContent = spawnTimings.length;
 }
@@ -230,7 +221,7 @@ function startGame() {
     requestFullscreen();
     
     score = 0;
-    timeLeft = 30;
+    timeLeft = GAME_TOTAL_TIME_SECONDS; // Startzeit aus den Einstellungen laden
     scoreBoard.textContent = score;
     timeLeftBoard.textContent = timeLeft;
     moles.forEach(mole => mole.classList.remove('up'));
@@ -263,21 +254,16 @@ async function endGame() {
         `🎯 Deine Trefferquote: ${hitRate}%`
     );
 
-    // --- 💾 AUTOMATISIERTE NAMENS-SPEICHERUNG ---
     let spielerName = localStorage.getItem('mole_player_name');
 
-    // Falls noch kein Name gespeichert ist, fragen wir einmalig nach
     if (!spielerName) {
         const inputName = prompt("Trage einen Anzeigenamen für die Bestenliste ein:");
         if (inputName && inputName.trim() !== "") {
             spielerName = inputName.trim();
             localStorage.setItem('mole_player_name', spielerName);
-            // Ändert die Statusanzeige oben direkt auf den Spielernamen
-            loggedUserEmail.textContent = spielerName;
         }
     }
 
-    // Wenn wir einen Namen haben (entweder neu eingegeben oder geladen), laden wir ihn hoch
     if (spielerName) {
         await submitScore(spielerName, score, hitRate);
     }
@@ -304,10 +290,6 @@ moles.forEach(mole => {
     }, { passive: false });
 });
 
-if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
-    document.getElementById('fs-prompt').style.display = 'none';
-}
-
 function adjustAppHeight() {
     const doc = document.documentElement;
     doc.style.setProperty('--app-height', `${window.innerHeight}px`);
@@ -318,3 +300,4 @@ window.addEventListener('resize', adjustAppHeight);
 window.addEventListener('orientationchange', adjustAppHeight);
 
 generatePrecalculatedSession();
+timeLeftBoard.textContent = GAME_TOTAL_TIME_SECONDS;
