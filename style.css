@@ -1,0 +1,299 @@
+:root {
+    --app-height: 100vh;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.game-container, .score-board, h1, .leaderboard, .mole, .hole {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+html {
+    background-color: #2f6b1b;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: radial-gradient(circle, #7bc85e 0%, #2f6b1b 100%);
+    height: var(--app-height);
+    width: 100vw;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    touch-action: manipulation;
+    padding: env(safe-area-inset-top, 20px) 15px env(safe-area-inset-bottom, 20px) 15px;
+}
+
+.auth-container {
+    background: rgba(0, 0, 0, 0.95);
+    border: 2px solid #ffeb3b;
+    border-radius: 20px;
+    padding: 25px 20px;
+    width: 90vw;
+    max-width: 380px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    position: relative;
+    z-index: 999999 !important; 
+    pointer-events: auto !important;
+    touch-action: auto !important;
+    -webkit-user-select: text !important;
+    user-select: text !important;
+}
+
+.auth-container h2 {
+    color: #ffeb3b;
+    font-size: 1.4rem;
+    margin-bottom: 5px;
+}
+
+/* Tab Styles */
+.auth-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 5px;
+    position: relative;
+    z-index: 1000000 !important;
+    pointer-events: auto !important;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 12px 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer !important;
+    font-size: 0.95rem;
+    transition: background 0.2s;
+    pointer-events: auto !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+}
+
+.auth-tab.active {
+    background: #ffeb3b;
+    color: #1e3d0f;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 1rem;
+    outline: none;
+    -webkit-user-select: text !important;
+    user-select: text !important;
+    pointer-events: auto !important;
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: #7bc85e;
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer !important;
+    transition: background 0.2s;
+    pointer-events: auto !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+}
+
+.auth-btn:active {
+    transform: scale(0.98);
+}
+
+.user-status {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    margin-bottom: 5px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.logout-link {
+    color: #ffeb3b;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+h1 {
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+    margin: 5px 0;
+    font-size: 1.6rem;
+    text-align: center;
+}
+
+.score-board {
+    font-size: 1.1rem;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 8px 25px;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    margin-bottom: 15px;
+    font-weight: bold;
+    display: flex;
+    gap: 15px;
+}
+
+.leaderboard {
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #ffeb3b;
+    border-radius: 15px;
+    padding: 10px 15px;
+    width: 90vw;
+    max-width: 380px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+.leaderboard h2 {
+    font-size: 1rem;
+    color: #ffeb3b;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.leaderboard-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 0.9rem;
+}
+
+.leaderboard-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+.leaderboard-item.first {
+    border-left: 4px solid gold;
+    font-weight: bold;
+}
+
+.game-container {
+    width: 90vw;
+    max-width: 360px;
+    aspect-ratio: 1 / 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 10px;
+    background: #1e3d0f;
+    padding: 15px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    box-sizing: border-box;
+}
+
+.hole {
+    background: #5c3a21;
+    border-radius: 50% 50% 20% 20%;
+    position: relative;
+    overflow: hidden;
+    border: 3px solid #3d2514;
+    box-shadow: inset 0 6px 6px rgba(0,0,0,0.6);
+}
+
+.mole {
+    width: 80%;
+    height: 80%;
+    background: #a0522d;
+    border-radius: 50% 50% 0 0;
+    position: absolute;
+    bottom: -100%;
+    left: 10%;
+    transition: bottom 0.1s ease-out;
+    cursor: pointer;
+    box-shadow: inset -3px -3px 6px rgba(0,0,0,0.4);
+}
+
+.mole::before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: black;
+    border-radius: 50%;
+    top: 25%;
+    left: 25%;
+    box-shadow: 20px 0 0 black;
+}
+
+.mole::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 7px;
+    background: #ff69b4;
+    border-radius: 50%;
+    top: 40%;
+    left: 41%;
+}
+
+.mole.up {
+    bottom: 5px;
+}
+
+.start-btn {
+    margin-top: 15px;
+    padding: 12px 40px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #1e3d0f;
+    background: #ffeb3b;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    transition: transform 0.1s, background 0.2s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.start-btn:active {
+    transform: scale(0.95);
+}
+
+.fullscreen-prompt {
+    position: fixed;
+    bottom: env(safe-area-inset-bottom, 5px);
+    font-size: 0.75rem;
+    opacity: 0.7;
+    text-align: center;
+}
+
+.hidden {
+    display: none !important;
+}

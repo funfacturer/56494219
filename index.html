@@ -2,344 +2,77 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <!-- viewport-fit=cover nutzt das gesamte Display inklusive Notch, Dynamic Island & Home-Bar -->
+    <!-- Cover-View für Notch & Home-Bar auf dem iPhone -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
     
     <!-- Browser-Theme-Farbe (Statusleiste Android) -->
     <meta name="theme-color" content="#2f6b1b">
 
-    <!-- iOS / Safari App-Modus & Statusleisten-Verschmelzung -->
+    <!-- iOS / Safari App-Modus & Icon-Konfiguration -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <!-- black-translucent macht die Statusleiste transparent, sodass die Hintergrundfarbe dahintergleitet -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Maulwurf">
     
-    <!-- Das App-Icon für den Homescreen -->
     <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/mole.png">
 
-    <!-- Android / Chrome App-Modus & Icon-Konfiguration -->
-    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Hau%20den%20Maulwurf%22,%22short_name%22:%22Maulwurf%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%232f6b1b%22,%22theme_color%22:%22%232f6b1b%22,%22orientation%22:%22portrait%22,%22icons%22:[{%22src%22:%22https://img.icons8.com/color/512/mole.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <title>Hau den Maulwurf! 🐹🔨</title>
-    <style>
-        :root {
-            --app-height: 100vh;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        html {
-            background-color: #2f6b1b;
-            height: 100%;
-            overflow: hidden;
-            position: relative;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: radial-gradient(circle, #7bc85e 0%, #2f6b1b 100%);
-            /* Nutzt die exakt via JS berechnete Höhe für iPhones */
-            height: var(--app-height);
-            width: 100vw;
-            overflow: hidden;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            touch-action: manipulation;
-            /* Ausgleich für iOS safe areas (Notch & Home Bar) */
-            padding: env(safe-area-inset-top, 20px) 15px env(safe-area-inset-bottom, 20px) 15px;
-        }
-
-        h1 {
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
-            margin: 10px 0;
-            font-size: 1.8rem;
-            text-align: center;
-        }
-
-        .score-board {
-            font-size: 1.1rem;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 8px 25px;
-            border-radius: 50px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            margin-bottom: 20px;
-            font-weight: bold;
-            display: flex;
-            gap: 15px;
-        }
-
-        .game-container {
-            width: 90vw;
-            max-width: 400px;
-            aspect-ratio: 1 / 1;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: 10px;
-            background: #1e3d0f;
-            padding: 15px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            box-sizing: border-box;
-        }
-
-        .hole {
-            background: #5c3a21;
-            border-radius: 50% 50% 20% 20%;
-            position: relative;
-            overflow: hidden;
-            border: 3px solid #3d2514;
-            box-shadow: inset 0 6px 6px rgba(0,0,0,0.6);
-        }
-
-        .mole {
-            width: 80%;
-            height: 80%;
-            background: #a0522d;
-            border-radius: 50% 50% 0 0;
-            position: absolute;
-            bottom: -100%;
-            left: 10%;
-            transition: bottom 0.1s ease-out;
-            cursor: pointer;
-            box-shadow: inset -3px -3px 6px rgba(0,0,0,0.4);
-        }
-
-        .mole::before {
-            content: '';
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background: black;
-            border-radius: 50%;
-            top: 25%;
-            left: 25%;
-            box-shadow: 20px 0 0 black;
-        }
-
-        .mole::after {
-            content: '';
-            position: absolute;
-            width: 10px;
-            height: 7px;
-            background: #ff69b4;
-            border-radius: 50%;
-            top: 40%;
-            left: 41%;
-        }
-
-        .mole.up {
-            bottom: 5px;
-        }
-
-        .start-btn {
-            margin-top: 20px;
-            padding: 12px 40px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #1e3d0f;
-            background: #ffeb3b;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            transition: transform 0.1s, background 0.2s;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .start-btn:active {
-            transform: scale(0.95);
-        }
-
-        .fullscreen-prompt {
-            position: fixed;
-            bottom: env(safe-area-inset-bottom, 10px);
-            font-size: 0.8rem;
-            opacity: 0.7;
-            text-align: center;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h1>Hau den Maulwurf! 🐹🔨</h1>
-    <div class="score-board">
-        <span>Treffer: <span id="score">0</span>/<span id="total-spawns">0</span></span>
-        <span>|</span>
-        <span>Zeit: <span id="time-left">30</span>s</span>
+    <!-- 🔑 AUTHENTICATION BOX (Zwei-Button Tab-Design) -->
+    <div class="auth-container" id="auth-box">
+        <h2>🐹 Maulwurf Login</h2>
+        <div class="auth-tabs">
+            <button class="auth-tab active" id="tab-login">Anmelden</button>
+            <button class="auth-tab" id="tab-register">Registrieren</button>
+        </div>
+        <input type="email" class="auth-input" id="auth-email" placeholder="E-Mail-Adresse" autocomplete="email">
+        <input type="password" class="auth-input" id="auth-password" placeholder="Passwort (min. 6 Zeichen)">
+        <button class="auth-btn" id="auth-submit-btn">Einloggen</button>
     </div>
 
-    <div class="game-container">
-        <div class="hole"><div class="mole"></div></div>
-        <div class="hole"><div class="mole"></div></div>
-        <div class="hole"><div class="mole"></div></div>
-        <div class="hole"><div class="mole"></div></div>
-        <div class="hole"><div class="mole"></div></div>
-        <div class="hole"><div class="mole"></div></div>
-        <div class="hole"><div class="mole"></div></div>
-        <div class="hole"><div class="mole"></div></div>
-        <div class="hole"><div class="mole"></div></div>
-    </div>
+    <!-- 🎮 MAIN GAME AREA -->
+    <div class="hidden" id="game-area" style="display: flex; flex-direction: column; align-items: center;">
+        <div class="user-status">
+            <span>Eingeloggt als: <strong id="logged-user-email">...</strong></span>
+            <span>|</span>
+            <span class="logout-link" id="logout-btn">Abmelden</span>
+        </div>
 
-    <button class="start-btn" id="start-btn" onclick="startGame()">Spiel starten!</button>
+        <h1>Hau den Maulwurf! 🐹</h1>
+
+        <!-- Realtime Supabase Leaderboard -->
+        <div class="leaderboard">
+            <h2>🏆 Bestenliste (Top 3)</h2>
+            <ol class="leaderboard-list" id="leaderboard-list">
+                <li style="opacity: 0.5;">Lade Bestenliste...</li>
+            </ol>
+        </div>
+
+        <div class="score-board">
+            <span>Treffer: <span id="score">0</span>/<span id="total-spawns">0</span></span>
+            <span>|</span>
+            <span>Zeit: <span id="time-left">30</span>s</span>
+        </div>
+
+        <div class="game-container">
+            <div class="hole"><div class="mole"></div></div>
+            <div class="hole"><div class="mole"></div></div>
+            <div class="hole"><div class="mole"></div></div>
+            <div class="hole"><div class="mole"></div></div>
+            <div class="hole"><div class="mole"></div></div>
+            <div class="hole"><div class="mole"></div></div>
+        </div>
+
+        <button class="start-btn" id="start-btn">Spiel starten!</button>
+    </div>
     
-    <script>
-        const holes = document.querySelectorAll('.hole');
-        const moles = document.querySelectorAll('.mole');
-        const scoreBoard = document.querySelector('#score');
-        const totalSpawnsBoard = document.querySelector('#total-spawns');
-        const timeLeftBoard = document.querySelector('#time-left');
-        const startBtn = document.querySelector('#start-btn');
-        
-        let lastHole;
-        let score = 0;
-        let timeLeft = 30;
-        let countdownTimer;
-        let isPlaying = false; 
-        
-        let spawnTimings = []; 
-        let activeTimeouts = [];
+    <div class="fullscreen-prompt" id="fs-prompt">Für echtes Vollbild zum Homescreen hinzufügen!</div>
 
-        // Feste Verweildauer der Maulwürfe (genau 600 ms)
-        const SPAWN_DURATION = 600; 
-
-        function requestFullscreen() {
-            const docElm = document.documentElement;
-            if (docElm.requestFullscreen) {
-                docElm.requestFullscreen();
-            } else if (docElm.mozRequestFullScreen) {
-                docElm.mozRequestFullScreen();
-            } else if (docElm.webkitRequestFullscreen) {
-                docElm.webkitRequestFullscreen();
-            } else if (docElm.msRequestFullscreen) {
-                docElm.msRequestFullscreen();
-            }
-        }
-
-        // Berechnet die komplette Runde im Voraus auf Basis des 600-ms-Intervalls
-        function generatePrecalculatedSession() {
-            spawnTimings = [];
-            let simulatedTime = 0;
-            const gameDurationLimit = 30000; // 30 Sekunden
-
-            while (simulatedTime < gameDurationLimit) {
-                spawnTimings.push({
-                    startTime: simulatedTime,
-                    duration: SPAWN_DURATION
-                });
-                simulatedTime += SPAWN_DURATION;
-            }
-            // Zeigt direkt die exakte Gesamtzahl an (immer genau 50 bei 30s)
-            totalSpawnsBoard.textContent = spawnTimings.length;
-        }
-
-        function randomHole(holes) {
-            const idx = Math.floor(Math.random() * holes.length);
-            const hole = holes[idx];
-            if (hole === lastHole) {
-                return randomHole(holes);
-            }
-            lastHole = hole;
-            return hole;
-        }
-
-        function runPrecalculatedSession() {
-            spawnTimings.forEach(spawn => {
-                const spawnTimeout = setTimeout(() => {
-                    const hole = randomHole(holes);
-                    const mole = hole.querySelector('.mole');
-                    
-                    mole.classList.add('up');
-
-                    const hideTimeout = setTimeout(() => {
-                        mole.classList.remove('up');
-                    }, spawn.duration);
-
-                    activeTimeouts.push(hideTimeout);
-                }, spawn.startTime);
-
-                activeTimeouts.push(spawnTimeout);
-            });
-        }
-
-        function startGame() {
-            if (isPlaying) return; 
-            isPlaying = true;
-
-            requestFullscreen();
-            
-            score = 0;
-            timeLeft = 30;
-            scoreBoard.textContent = score;
-            timeLeftBoard.textContent = timeLeft;
-            moles.forEach(mole => mole.classList.remove('up'));
-
-            runPrecalculatedSession();
-            
-            countdownTimer = setInterval(() => {
-                timeLeft--;
-                timeLeftBoard.textContent = timeLeft;
-                
-                if (timeLeft <= 0) {
-                    clearInterval(countdownTimer);
-                    endGame();
-                }
-            }, 1000);
-        }
-
-        function endGame() {
-            isPlaying = false;
-            activeTimeouts.forEach(clearTimeout);
-            activeTimeouts = [];
-            moles.forEach(mole => mole.classList.remove('up'));
-
-            const totalPossible = spawnTimings.length;
-            const hitRate = totalPossible > 0 ? Math.round((score / totalPossible) * 100) : 0;
-            
-            alert(
-                `⏱️ Zeit abgelaufen!\n\n` +
-                `🔨 Getroffen: ${score} von ${totalPossible} möglichen Maulwürfen\n\n` +
-                `🎯 Deine Trefferquote: ${hitRate}%`
-            );
-
-            generatePrecalculatedSession();
-            score = 0;
-            scoreBoard.textContent = score;
-        }
-
-        function bonk(e) {
-            if(!e.isTrusted) return; 
-            if (!isPlaying) return; 
-            
-            score++;
-            this.classList.remove('up');
-            scoreBoard.textContent = score;
-        }
-
-        moles.forEach(mole => {
-            mole.addEventListener('click', bonk);
-            mole.addEventListener('touchstart', function(e) {
-                e.preventDefault(); 
-                bonk.call(this, e);
-            }, { passive: false });
-        });
-
-        if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
-            document.getElementById('fs-prompt').style.display = 'none';
-        }
-
-        // iPhone Höhenberechnung
-        function adjustAppHeight() {
-            const doc = document.documentElement;
-            doc.style.setProperty('--app-height', `$
+    <script src="script.js"></script>
+</body>
+</html>
