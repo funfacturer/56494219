@@ -8,13 +8,21 @@
     <!-- Browser-Theme-Farbe (Statusleiste Android) -->
     <meta name="theme-color" content="#2f6b1b">
 
-    <!-- iOS / Safari App-Modus & Icon-Konfiguration -->
+    <!-- iOS / Safari App-Modus & Statusleisten-Verschmelzung -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Maulwurf">
     
+    <!-- 📱 Apple-Touch-Icon für den Homescreen verlinken -->
     <link rel="apple-touch-icon" href="icon.png">
     
+    <!-- 💻 Icons für die klassische Browser-Leiste (Tabs) -->
+    <link rel="icon" type="image/png" href="icon.png" sizes="32x32">
+    <link rel="shortcut icon" href="icon.png" type="image/x-icon">
+
+    <!-- ⚙️ Das Inline-Webmanifest, das den schwarzen Hintergrund für iOS & Android verhindert -->
+    <link rel="manifest" href="data:application/manifest+json,{%22name%22:%22Hau%20den%20Maulwurf%22,%22short_name%22:%22Maulwurf%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%232f6b1b%22,%22theme_color%22:%22%232f6b1b%22,%22orientation%22:%22portrait%22,%22icons%22:[{%22src%22:%22icon.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]}">
+
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -66,7 +74,6 @@
             <div class="hole"><div class="mole"></div></div>
             <div class="hole"><div class="mole"></div></div>
         </div>
-
 
         <button class="start-btn" id="start-btn">Spiel starten!</button>
     </div>
